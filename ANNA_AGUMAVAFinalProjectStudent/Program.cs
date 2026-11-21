@@ -1,253 +1,84 @@
-﻿using ANNA_AGUMAVAFinalProjectStudent.Models;
+﻿using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.AuthServices;
+using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Helpers;
+using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Menus;
+using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Models;
+using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Service;
+using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Session;
+/// <summary>
+/// Creates the application services and menus, restores any saved login,
+/// and routes the user to the menu associated with their role.
+/// </summary>
 
-StudentManagement studentManagement = new StudentManagement(new List<Student>());
-studentManagement.AddStudent(new Student
+/// <summary>
+/// Creates the student service and loads its data asynchronously.
+/// </summary>
+StudentService service = await StudentService.CreateAsync();
+/// <summary>
+/// Creates the student-management component using the student service.
+/// </summary>
+StudentManagement studentManagement = new StudentManagement(service);
+/// <summary>
+/// Creates the authentication service and loads its data asynchronously.
+/// </summary>
+var auth = await AuthService.CreateAsync();
+/// <summary>
+/// Creates a session service to track the current user's login and role.
+/// </summary>
+var session = new SessionService(auth);
+/// <summary>
+/// Creates the actions that menus can use to perform student-related tasks.
+/// </summary>
+var actions = new StudentActions(studentManagement);
+/// <summary>
+/// Creates the menu used for logging in or registering.
+/// </summary>
+var authMenu = new AuthMenu(auth, session);
+/// <summary>
+/// Creates the menu available to students.
+/// </summary>
+var studentMenu = new StudentMenu(session, actions);
+/// <summary>
+/// Creates the menu available to guests.
+/// </summary>
+var guestMenu = new GuestMenu(session, actions);
+/// <summary>
+/// Creates the menu available to administrators and teachers.
+/// </summary>
+var adminMenu = new AdminMenu(session, actions);
+
+Console.WriteLine("---------- TSU Student Management ----------");
+// Restore a previous login, if one exists.
+if (session.RestoreLogin())
 {
-    StudentName = "Lara Johnson",
-    Grade = 'A',
-    SchoolName = "ABC High School",
-    BirthDate = new DateOnly(2000, 1, 1),
-    Course = LearningCourse.BasicsOfProgramming
-});
-while (true)
+    Console.WriteLine($"Welcome Back {session.CurrentUser?.UserName}");
+}
+// Track whether the user has chosen to exit the application.
+bool exited = false;
+while (!exited)
 {
-    Console.WriteLine("---Student management---");
-    Console.WriteLine("1. Add new student");
-    Console.WriteLine("2. See all students");
-    Console.WriteLine("3. Search student with Name");
-    Console.WriteLine("4. Search student with Roll Number");
-    Console.WriteLine("5. Search student by Grade");
-    Console.WriteLine("6. Search student by School Name");
-    Console.WriteLine("7. Update students Grade");
-    Console.WriteLine("8. Search student by Birth Date");
-    Console.WriteLine("9. Exit");
-
-    Console.WriteLine();
-    Console.WriteLine("------------------------");
-    Console.WriteLine();
-
-    Console.WriteLine();
-    Console.Write("Select: ");
-
-    string Choice = Console.ReadLine() ?? "";
-    if (Choice == "1")
+    if (!session.IsLoggedIn)
     {
-        Student student = new Student();
-        Console.WriteLine("---- Add new Student ----");
-        Console.Write("Name: ");
-        student.StudentName = Console.ReadLine() ?? "";
-        Console.Write("Grade: ");
-        student.Grade = Console.ReadLine()?.FirstOrDefault() ?? '\0';
-        Console.Write("School Name: ");
-        student.SchoolName = Console.ReadLine() ?? "";
-        Console.Write("Birth Date (yyyy-MM-dd): ");
-        DateOnly birthDate;
-        while (!DateOnly.TryParse(Console.ReadLine(), out birthDate))
+        exited = await authMenu.RunAsync();
+        if (exited)
         {
-            Console.Write("Invalid date, try again (yyyy-MM-dd): ");
+            break;
         }
-        student.BirthDate = birthDate;
-        student.Course = studentManagement.ReadCourse();
-        bool isValid = !string.IsNullOrWhiteSpace(student.StudentName) && !string.IsNullOrWhiteSpace(student.SchoolName);
-        if (isValid)
-        {
-            studentManagement.AddStudent(student);
-            Console.WriteLine($"'{student.StudentName}' was added to the List of Students");
-        }
-        else
-        {
-            Console.WriteLine("Something went Wrong!");
-        }
-        Console.WriteLine("Press Enter To Continue");
-        Console.ReadLine();
     }
-    Console.WriteLine();
-
-    if (Choice == "2")
+    Roles? role = session.CurrentRole;
+    if (role == Roles.Student)
     {
-        Console.WriteLine("---- See all Students ----");
-        IReadOnlyList<Student> allStudents = studentManagement.GetAllStudents();
-        if (allStudents.Count == 0)
-        {
-            Console.WriteLine("No Students found!");
-        }
-        else
-        {
-            foreach (Student student in allStudents)
-            {
-                Console.WriteLine($"Name: {student.StudentName}");
-                Console.WriteLine($"Roll Number: {student.RollNumber}");
-                Console.WriteLine($"Grade: {student.Grade}");
-                Console.WriteLine($"School Name: {student.SchoolName}");
-                Console.WriteLine($"Birth Date: {student.BirthDate}");
-                Console.WriteLine($"Course: {student.Course}");
-                Console.WriteLine();
-            }
-            Console.WriteLine();
-        }
-        Console.ReadLine();
+        exited = await studentMenu.RunAsync();
     }
-    Console.WriteLine();
-
-    if (Choice == "3")
+    else if (role == Roles.Guest)
     {
-        Console.WriteLine("---- Search Student with Name ----");
-        Console.WriteLine("Title: ");
-        string searchTitle = Console.ReadLine() ?? "";
-        Student? found = studentManagement.GetStudentByName(searchTitle);
-        if (found == null)
-        {
-            Console.WriteLine("No Student found!");
-        }
-        else
-        {
-            Console.WriteLine($"Name: {found.StudentName}");
-            Console.WriteLine($"Roll Number: {found.RollNumber}");
-            Console.WriteLine($"Grade: {found.Grade}");
-            Console.WriteLine($"School Name: {found.SchoolName}");
-            Console.WriteLine($"Birth Date: {found.BirthDate}");
-            Console.WriteLine($"Course: {found.Course}");
-        }
-        Console.WriteLine("Press Enter To Continue");
-        Console.ReadLine();
+        exited = await guestMenu.RunAsync();
     }
-    Console.WriteLine();
-
-    if (Choice == "4")
+    else if (role == Roles.Admin || role == Roles.Teacher)
     {
-        Console.WriteLine("---- Search Student with RollNumber ----");
-        Console.WriteLine("Roll Number: ");
-        int searchId;
-        int.TryParse(Console.ReadLine(), out searchId);
-        Student? foundds = studentManagement.GetStudentByRollNumber(searchId);
-        if (foundds == null)
-        {
-            Console.WriteLine("No Student found!");
-        }
-        else
-        {
-            Console.WriteLine($"Name: {foundds.StudentName}");
-            Console.WriteLine($"Roll Number: {foundds.RollNumber}");
-            Console.WriteLine($"Grade: {foundds.Grade}");
-            Console.WriteLine($"School Name: {foundds.SchoolName}");
-            Console.WriteLine($"Birth Date: {foundds.BirthDate}");
-            Console.WriteLine($"Course: {foundds.Course}");
-        }
-        Console.WriteLine("Press Enter To Continue");
-        Console.ReadLine();
+        exited = await adminMenu.RunAsync();
     }
-    Console.WriteLine();
-
-    if (Choice == "5")
+    else
     {
-        Console.WriteLine("---- Search student by Grade ----");
-        Console.WriteLine("Grade: ");
-        string gradeInput = Console.ReadLine() ?? "";
-        if (gradeInput.Length == 0)
-        {
-            Console.WriteLine("Grade can not be Empty!");
-        }
-        else
-        {
-            char searchGrade = gradeInput[0];
-
-            Student? founde = studentManagement.GetStudentByGrade(searchGrade);
-            if (founde == null)
-            {
-                Console.WriteLine("No Student found!");
-            }
-            else
-            {
-                Console.WriteLine($"Name: {founde.StudentName}");
-                Console.WriteLine($"Roll Number: {founde.RollNumber}");
-                Console.WriteLine($"Grade: {founde.Grade}");
-                Console.WriteLine($"School Name: {founde.SchoolName}");
-                Console.WriteLine($"Birth Date: {founde.BirthDate}");
-                Console.WriteLine($"Course: {founde.Course}");
-            }
-        }
-        Console.WriteLine("Press Enter To Continue");
-        Console.ReadLine();
-    }
-    Console.WriteLine();
-    
-    if (Choice == "6")
-    {
-        Console.WriteLine("---- Search student by School Name ----");
-        Console.WriteLine("School Name: ");
-        string searchSchoolName = Console.ReadLine() ?? "";
-        Student? found = studentManagement.GetStudentBySchoolName(searchSchoolName);
-        if (found == null)
-        {
-            Console.WriteLine("No Student found!");
-        }
-        else
-        {
-            Console.WriteLine($"Name: {found.StudentName}");
-            Console.WriteLine($"Roll Number: {found.RollNumber}");
-            Console.WriteLine($"Grade: {found.Grade}");
-            Console.WriteLine($"School Name: {found.SchoolName}");
-            Console.WriteLine($"Birth Date: {found.BirthDate}");
-            Console.WriteLine($"Course: {found.Course}");
-        }
-        Console.WriteLine("Press Enter To Continue");
-        Console.ReadLine();
-    }
-
-    if (Choice == "7")
-    {
-        Console.WriteLine("---- Update Grade ----");
-        Console.WriteLine("Grade: ");
-        char searchRollNumber;
-        char.TryParse(Console.ReadLine(), out searchRollNumber);
-        Student? founddss = studentManagement.GetStudentByRollNumber(searchRollNumber);
-        if (founddss == null)
-        {
-            Console.WriteLine("No Student found, try again!");
-            Console.WriteLine("Roll Number: ");
-        }
-        else
-        {
-            Console.WriteLine("New Grade: ");
-            char newGrade;
-            char.TryParse(Console.ReadLine(), out newGrade);
-            studentManagement.UpdateStudentGarde(founddss.RollNumber, newGrade);
-            Console.WriteLine($"Grade: {founddss.Grade}");
-        }
-        Console.WriteLine("Press Enter To Continue");
-        Console.ReadLine();
-    }
-    Console.WriteLine();
-
-    if (Choice == "8")
-    {
-        Console.WriteLine("---- Search Student with Birth Date ----");
-        Console.WriteLine("Birth Date: ");
-        DateOnly searchBirthDate;
-        Console.WriteLine("(yyyy-MM-dd): ");
-        DateOnly.TryParse(Console.ReadLine(), out searchBirthDate);
-        Student? foundd = studentManagement.GetStudentByBirthDate(searchBirthDate);
-        if (foundd == null)
-        {
-            Console.WriteLine("No Student found!");
-        }
-        else
-        {
-            Console.WriteLine($"Name: {foundd.StudentName}");
-            Console.WriteLine($"Roll Number: {foundd.RollNumber}");
-            Console.WriteLine($"Grade: {foundd.Grade}");
-            Console.WriteLine($"School Name: {foundd.SchoolName}");
-            Console.WriteLine($"Birth Date: {foundd.BirthDate}");
-            Console.WriteLine($"Course: {foundd.Course}");
-        }
-        Console.WriteLine("Press Enter To Continue");
-        Console.ReadLine();
-    }
-    Console.WriteLine();
-
-    if (Choice == "9")
-    {
-        Console.WriteLine("Thanks for using our website!");
-        break;
+        session.LogOut();
     }
 }

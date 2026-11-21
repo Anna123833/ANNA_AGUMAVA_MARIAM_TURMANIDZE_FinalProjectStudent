@@ -1,15 +1,29 @@
-﻿namespace ANNA_AGUMAVAFinalProjectStudent.Models;
-
+﻿namespace ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Models;
+    /// <summary>
+    /// Represents a student, including their school details and enrolled course.
+    /// </summary>
 internal class Student : IStudents
 {
+    // Stores the student's name.
     private string studentName { get; set; } = string.Empty;
-    private static int nextRollNumber = 1;
-    private int rollNumber;
+    // The ID assigned to the next student.
+    private static int nextId = 1;
+    // Stores this student's ID.
+    private int id;
+    // The student's roll number.
+    public string RollNumber { get; set; } = string.Empty;
+    // Stores the student's school name.
     private string schoolName { get; set; } = string.Empty;
+    // Stores the student's grade.
     private char grade { get; set; }
+    // Stores the student's date of birth.
     private DateOnly birthDate { get; set; }
+    // Stores the course the student is enrolled in.
     private LearningCourse course;
 
+    /// <summary>
+    /// Gets or sets the student's name.
+    /// </summary>
     public string StudentName
     {
         get => studentName;
@@ -22,19 +36,25 @@ internal class Student : IStudents
             studentName = value.Trim();
         }
     }
-    public int RollNumber
+    /// <summary>
+    /// Gets or sets the student's unique identifier.
+    /// </summary>
+    public int Id
     {
-        get => rollNumber;
+        get => id;
         set
         {
             if (value < 1)
             {
-                throw new ArgumentException("Roll number must be a positive integer.");
+                throw new ArgumentException("Id must be a positive integer.");
             }
 
-            rollNumber = value;
+            id = value;
         }
     }
+    /// <summary>
+    /// Gets or sets the student's grade, from A through F.
+    /// </summary>
     public char Grade
     {
         get => grade;
@@ -48,6 +68,9 @@ internal class Student : IStudents
             grade = g;
         }
     }
+    /// <summary>
+    /// Gets or sets the student's school name.
+    /// </summary>
     public string SchoolName
     {
         get => schoolName;
@@ -60,6 +83,9 @@ internal class Student : IStudents
             schoolName = value.Trim();
         }
     }
+    /// <summary>
+    /// Gets or sets the student's date of birth.
+    /// </summary>
     public DateOnly BirthDate
     {
         get => birthDate;
@@ -73,13 +99,26 @@ internal class Student : IStudents
             {
                 throw new ArgumentException("Birth date is not valid.");
             }
-            else if(value > DateOnly.FromDateTime(DateTime.Now.AddYears(-18)))
-            {
-                throw new ArgumentException("Student must be at least 18 years old.");
-            }
             birthDate = value;
         }
     }
+    /// <summary>
+    /// Gets the student's age in years.
+    /// </summary>
+    public int Age
+    {
+        get
+        {
+            int age = DateTime.Today.Year - BirthDate.Year;
+            if (BirthDate > DateOnly.FromDateTime(DateTime.Today).AddYears(-age)){
+                age--;
+            }
+            return age;
+        }
+    }
+    /// <summary>
+    /// Gets or sets the student's learning course.
+    /// </summary>
     public LearningCourse Course { 
         get => course;
         set
@@ -92,22 +131,53 @@ internal class Student : IStudents
         }
     }
 
+    /// <summary>
+    /// Sets the identifier that will be assigned to the next student.
+    /// </summary>
+    /// <param name="value">The next identifier to assign.</param>
+    public static void SetNextId(int value)
+    {
+        nextId = value;
+    }
+    /// <summary>
+    /// Prints and returns a summary of the student's details.
+    /// </summary>
+    /// <returns>A string containing the student's name, ID, grade, school, birth date, and course.</returns>
     public string GetInfo()
     {
-        Console.WriteLine($"Student Name: {StudentName}, Roll Number: {RollNumber}, Grade: {Grade}, School Name: {SchoolName}, Birth Date: {BirthDate}, Course: {Course}");
-        return $"{StudentName}, {RollNumber}, {Grade}, {SchoolName}, {BirthDate}, {Course}";
+        Console.WriteLine($"Student Name: {StudentName}, Id: {Id}, Grade: {Grade}, School Name: {SchoolName}, Birth Date: {BirthDate}, Course: {Course}");
+        return $"{StudentName}, {Id}, {Grade}, {SchoolName}, {BirthDate}, {Course}";
     }
+    /// <summary>
+    /// Initializes a student and assigns the next available identifier.
+    /// </summary>
     public Student()
     {
-        this.RollNumber = nextRollNumber++;
+        this.Id = nextId++;
     }
+    /// <summary>
+    /// Initializes a student with the specified details and assigns the next available identifier.
+    /// </summary>
+    /// <param name="studentName"></param>
+    /// <param name="grade"></param>
+    /// <param name="schoolName"></param>
+    /// <param name="birthDate"></param>
+    /// <param name="studentCourse"></param>
     public Student(string studentName, char grade, string schoolName, DateOnly birthDate, LearningCourse studentCourse)
     {
-        this.RollNumber = nextRollNumber++;
+        this.Id = nextId++;
         this.StudentName = studentName;
         this.Grade = grade;
         this.SchoolName = schoolName;
         this.BirthDate = birthDate;
         this.Course = studentCourse;
+    }
+    /// <summary>
+    /// Returns a readable summary of the student's details.
+    /// </summary>
+    /// <returns>A string representing the student.</returns>
+    public override string ToString()
+    {
+        return $"Id: {Id}, Roll Number: {RollNumber}, Student Name: {StudentName}, Age: {Age}, Grade: {Grade}, School Name: {SchoolName}, Birth Date: {BirthDate}, Course: {Course}";
     }
 }

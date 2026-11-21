@@ -1,31 +1,200 @@
-﻿using ANNA_AGUMAVAFinalProjectStudent.User;
+﻿using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Models;
+using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.User;
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 
-namespace ANNA_AGUMAVAFinalProjectStudent.AuthServices;
+namespace ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.AuthServices;
+/// <summary>
+/// Provides authentication functionality, including user registration,
+/// credential lookup, password hashing, and user-data persistence.
+/// </summary>
 internal class AuthService
 {
+
     private List<Users> users = new List<Users>();
+    private const string fileName = "users.json";
+    private string password = "";    
+    /// <summary>
+    /// Gets or sets the password after validating its required length and character types.
+    /// </summary>
+    public string Password
+    {
+        get => password;
+        set
+        {            
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new ArgumentException("Pasword can not be null or Whitespace, it is required!", nameof(value));
+            }
+            if (value.Length < 8)
+            {
+                throw new ArgumentException("Password must be minimum 8 characters long!", nameof(value));
+            }
+            if (!value.Any(char.IsUpper))
+            {
+                throw new ArgumentException("Pasword must contain at least one Uppercase letter", nameof(value));
+            }
+            if (!value.Any(char.IsLower))
+            {
+                throw new ArgumentException("Pasword must contain at least one Lowercase letter", nameof(value));
+            }
+            if(!value.Any(char.IsSymbol) && !value.Any(char.IsPunctuation))
+            {
+                throw new ArgumentException("Pasword must contain at least one Symbol", nameof(value));
+            }
+            password = value;
+        }
+    }
+    
+    private string email = "";
+    /// <summary>
+    /// Gets or sets the email address after validating that it is not empty
+    /// and contains basic email-format characters.
+    /// </summary>
+    public string Email
+    {
+        get => email;
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new ArgumentException("Email cannot be empty or contain only whitespace, it is required!", nameof(value));
+            }
+            if(!value.Contains("@") || !value.Contains("."))
+            {
+                throw new ArgumentException("Email must be in a valid format.", nameof(value));
+            }
+            email = value;
+        }
+    }
+    private readonly string filePath;
+    /// <summary>
+    /// Finds a user by their unique ID.
+    /// </summary>
+    /// <param name="id">The ID of the user to find.</param>
+    /// <returns>The matching user, or <see langword="null"/> if no user is found.</returns>
+    public Users? GetUserById(int id)
+    {
+        return users.FirstOrDefault(u => u.Id == id);
+    }
+    private static string GetFilePath()
+    {
+        string projectPath = Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName ?? string.Empty;
+        string folderPath = Path.Combine(projectPath, "Data");
+        Directory.CreateDirectory(folderPath);
+        return Path.Combine(folderPath, fileName);
+    }
+    private readonly JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions()
+    {
+        WriteIndented = true,
+    };
+    private AuthService(string filePath, List<Users> users)
+    {
+        this.filePath = filePath;
+        this.users = users;
+    }
     private static readonly byte[] fixedSalt = Encoding.UTF8.GetBytes("MyProject");
+    /// <summary>
+    /// Creates an authentication service and loads saved users asynchronously.
+    /// </summary>
+    /// <returns>A task containing the initialized authentication service.</returns>
+    public static async Task<AuthService> CreateAsync()
+    {
+        string filePath = GetFilePath();
+        List<Users> users = await LoadingUsersAsync(filePath);
+        return new AuthService(filePath, users);
+    }
+    private static async Task<List<Users>> LoadingUsersAsync(string filePath)
+    {
+        if (!File.Exists(filePath))
+        {
+            return [];
+        }
+        string json = await File.ReadAllTextAsync(filePath);
+        List<Users> loaded = JsonSerializer.Deserialize<List<Users>>(json) ?? [];
+        int maxId = loaded.Count == 0 ? 0 : loaded.Max(u => u.Id);
+        Users.SetNextId(maxId + 1);
+        return loaded;
+    }
+    private async Task SaveUsersAsync()
+    {
+        string json = JsonSerializer.Serialize(users, jsonSerializerOptions);
+        await File.WriteAllTextAsync(filePath, json);
+    }
     private static string GetHashPasswords(string password)
     {
         return HashPassword(password, fixedSalt);
     }
-    public bool Register(string userName, string password)
+    /// <summary>
+    /// Registers a new user if the email address is not already in use.
+    /// </summary>
+    /// <param name="userName">The new user's username.</param>
+    /// <param name="password">The new user's password.</param>
+    /// <param name="email">The new user's email address.</param>
+    /// <param name="roles">The role assigned to the new user.</param>
+    /// <param name="phoneNumber">The new user's phone number.</param>
+    /// <returns>
+    /// <see langword="true"/> if registration succeeds; otherwise,
+    /// <see langword="false"/>.
+    /// </returns>
+    public async Task<bool> RegisterAsync(string userName, string password, string email, Roles roles, string phoneNumber)
     {
-        Users? ExistingUser = users.FirstOrDefault(u => u.UserName == userName);
-        if(ExistingUser is not null)
+        Password = password;
+        Email = email;
+        Users? ExistingUser = users.FirstOrDefault(u => u.Email == email);
+        if (users.Any(e=>e.Email == Email))
         {
-            return true;
+            return false;
         }
-        Users newUser = new Users(userName, GetHashPasswords(password));
+        //if (ExistingUser is not null)
+        //{
+        //    return false;
+        //}
+        Users newUser = new Users(userName, email, phoneNumber, roles, GetHashPasswords(password));
         users.Add(newUser);
+        await SaveUsersAsync();
         return true;
     }
-    public Users? GetUser(string userName, string password) 
+    /// <summary>
+    /// Deletes a registered user when the supplied credentials match.
+    /// </summary>
+    /// <param name="userName">The user's username.</param>
+    /// <param name="password">The user's password.</param>
+    /// <param name="email">The user's email address.</param>
+    /// <returns>
+    /// <see langword="true"/> if the user is deleted; otherwise,
+    /// <see langword="false"/>.
+    /// </returns>
+    public async Task<bool> DeleteRegistratedUser(string userName, string password, string email)
     {
-        return users.FirstOrDefault(u => u.UserName == userName && u.PasswordHash == GetHashPasswords(password));
+        Users? user = GetUser(userName, password, email);
+        if (user is null)
+        {
+            return false;
+        }
+        users.Remove(user);
+        await SaveUsersAsync();
+        return true;
     }
+    /// <summary>
+    /// Finds a user whose username, password, and email match the supplied credentials.
+    /// </summary>
+    /// <param name="userName">The username to check.</param>
+    /// <param name="password">The password to check.</param>
+    /// <param name="email">The email address to check.</param>
+    /// <returns>The matching user, or <see langword="null"/> if no match is found.</returns>
+    public Users? GetUser(string userName, string password, string email)
+    {
+        return users.FirstOrDefault(u => u.UserName == userName && u.PasswordHash == GetHashPasswords(password) && u.Email == email);
+    }
+    /// <summary>
+    /// Hashes a password using the supplied salt and returns the result as Base64.
+    /// </summary>
+    /// <param name="password">The password to hash.</param>
+    /// <param name="salt">The salt to append to the password before hashing.</param>
+    /// <returns>The salt and password hash encoded as Base64.</returns>
     static string HashPassword(string password, byte[] salt)
     {
         using (var sha256 = SHA256.Create())
@@ -46,3 +215,5 @@ internal class AuthService
         }
     }
 }
+
+
