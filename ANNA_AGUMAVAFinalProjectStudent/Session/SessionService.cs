@@ -8,16 +8,32 @@ namespace ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Session;
 internal class SessionService
 {
     private static readonly string sessionFilePath = GetSessionFilePath();
+    private readonly StudentManagement studentManagement;
     private Users? currentUser = null;
+    private Student? currentStudent = null;
     private readonly AuthService authService;
     /// <summary>
     /// Gets the currently logged-in user.
     /// </summary>
     public Users? CurrentUser => currentUser;
     /// <summary>
+    /// Gets the currently logged-in Student.
+    /// </summary>
+    public Student? CurrentStudent => currentStudent;
+    /// <summary>
     /// Gets the current user's role, if logged in.
     /// </summary>
     public Roles? CurrentRole => currentUser?.UserRoles;
+
+    /// <summary>
+    /// Gets the current Student's ID.
+    /// </summary>
+    public int? CurrentStudentId => currentStudent?.Id;
+    /// <summary>
+    /// Gets the current Student's Grade, if logged in.
+    /// </summary>
+    public char? CurrentStudentGrade => currentStudent?.Grade;
+
     /// <summary>
     /// Gets the current user's phone number, if logged in.
     /// </summary>
@@ -40,9 +56,10 @@ internal class SessionService
     /// Initializes the session service.
     /// </summary>
     /// <param name="authService">Service used to authenticate and retrieve users.</param>
-    public SessionService(AuthService authService)
+    public SessionService(AuthService authService, StudentManagement studentManagement)
     {
         this.authService = authService;
+        this.studentManagement = studentManagement;
     }
     /// <summary>
     /// Gets the path to the session file and creates its directory if needed.
@@ -89,7 +106,7 @@ internal class SessionService
         Users? users = authService.GetUser(userName, password, email);
         if(users is not null)
         {
-            currentUser = users;
+            SetCurrentUser(users);
             File.WriteAllText(sessionFilePath, users.Id.ToString());
             Roles role = users.UserRoles;
             string phoneNumber = users.PhoneNumber;
@@ -112,5 +129,15 @@ internal class SessionService
             }
         }
         return false;
+    }
+
+    /// <summary>
+    /// Sets the current user and loads the linked student
+    /// </summary>
+    /// <param name="user"></param>
+    private void SetCurrentUser(Users user)
+    {
+        currentUser = user;
+        currentStudent = user.StudentId is int id ? studentManagement.GetStudentById(id) : null;
     }
 }

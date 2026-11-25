@@ -53,8 +53,9 @@ internal class AdminMenu
             Console.WriteLine("13. Get Best Students");
             Console.WriteLine("14. Delete Student by Id");
             Console.WriteLine("15. Get Students By Course");
-            Console.WriteLine("16. Log Out");
-            Console.WriteLine("17. Exit");
+            Console.WriteLine("16. Get students by RollNumber");
+            Console.WriteLine("17. Log Out");
+            Console.WriteLine("18. Exit");
             Console.WriteLine();
             Console.WriteLine("------------------------");
             Console.WriteLine();
@@ -78,11 +79,12 @@ internal class AdminMenu
                 case "13": actions.ShowBest(); break;
                 case "14": await actions.DeleteStudentAsync(); break;
                 case "15": actions.ShowByCourse(); break;
-                case "16":
+                case "16": actions.SearchByRollNumber(); break;
+                case "17":
                     session.LogOut();
                     Console.WriteLine("Logged out successfully!");
                     return false;
-                case "17":
+                case "18":
                     Console.WriteLine("Thanks for using our website!");
                     return true;
                 default:

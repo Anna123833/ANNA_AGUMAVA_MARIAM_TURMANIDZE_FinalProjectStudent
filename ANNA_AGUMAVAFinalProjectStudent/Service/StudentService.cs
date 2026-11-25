@@ -93,7 +93,7 @@ internal class StudentService
     public async Task AddNewStudentAsync(string studentName, string schoolName, char grade, DateOnly birthDate, LearningCourse course)
     {
         Student student = new Student(studentName, grade, schoolName, birthDate, course);
-        int studentsInCourse = students.Count(s => s.Course == course);
+        int studentsInCourse = students.Count(s => s?.Course == course);
         student.RollNumber = $"R{(int)student.Course}_{studentsInCourse /  20 + 1}";
         students.Add(student);
         await SaveDataAsync();

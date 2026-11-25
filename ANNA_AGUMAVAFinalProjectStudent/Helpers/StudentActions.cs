@@ -39,13 +39,13 @@ internal class StudentActions
         ConsoleHelper.Pause();
     }
     /// <summary>
-    /// Prompts for a student's name and displays the matching student, if found.
+    /// Prompts for a student's name and displays the matching student or students, if found.
     /// </summary>
     public void SearchByName()
     {
         Console.WriteLine("---- Search Student with Name ----");
         string name = ConsoleHelper.ReadText("Name: ");
-        ShowResult(studentManagement.GetStudentByName(name));
+        ShowResults(studentManagement.GetStudentsByName(name));
     }
     /// <summary>
     /// Prompts for a student ID and displays the matching student, if found.
@@ -57,31 +57,40 @@ internal class StudentActions
         ShowResult(studentManagement.GetStudentById(id));
     }
     /// <summary>
-    /// Prompts for a grade and displays a matching student, if found.
+    /// Prompts for a grade and displays a matching student or students, if found.
     /// </summary>
     public void SearchByGrade()
     {
         Console.WriteLine("---- Search student by Grade ----");
         char grade = ConsoleHelper.ReadGrade("Grade: ");
-        ShowResult(studentManagement.GetStudentByGrade(grade));
+        ShowResults(studentManagement.GetStudentsByGrade(grade));
     }
     /// <summary>
-    /// Prompts for a school name and displays a matching student, if found.
+    /// Prompts for a school name and displays a matching student or students, if found.
     /// </summary>
     public void SearchBySchoolName()
     {
         Console.WriteLine("---- Search student by School Name ----");
         string schoolName = ConsoleHelper.ReadText("School Name: ");
-        ShowResult(studentManagement.GetStudentBySchoolName(schoolName));
+        ShowResults(studentManagement.GetStudentsBySchoolName(schoolName));
     }
     /// <summary>
-    /// Prompts for a birth date and displays a matching student, if found.
+    /// Prompts for a Roll number and displays a matching student or students, if found.
+    /// </summary>
+    public void SearchByRollNumber()
+    {
+        Console.WriteLine("---- Search student by Roll Number ----");
+        string rollNumber = ConsoleHelper.ReadText("Roll Number R{course}_{group}: ");
+        ShowResults(studentManagement.GetStudentsByRollNumber(rollNumber));
+    }
+    /// <summary>
+    /// Prompts for a birth date and displays a matching student or students, if found.
     /// </summary>
     public void SearchByBirthDate()
     {
         Console.WriteLine("---- Search Student with Birth Date ----");
         DateOnly birthDate = ConsoleHelper.ReadDate("Birth Date (yyyy-MM-dd): ");
-        ShowResult(studentManagement.GetStudentByBirthDate(birthDate));
+        ShowResults(studentManagement.GetStudentsByBirthDate(birthDate));
     }
     /// <summary>
     /// Displays the best students according to the student-management service.
@@ -241,6 +250,21 @@ internal class StudentActions
         else
         {
             ConsoleHelper.PrintStudent(student);
+        }
+        ConsoleHelper.Pause();
+    }
+    private static void ShowResults(List<Student?> students)
+    {
+        if (students == null || students.Count == 0)
+        {
+            Console.WriteLine("No Student found!");
+        }
+        else
+        {
+            foreach (Student? student in students)
+            {
+                ConsoleHelper.PrintStudent(student);
+            }
         }
         ConsoleHelper.Pause();
     }

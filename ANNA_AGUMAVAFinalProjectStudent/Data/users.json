@@ -5,6 +5,25 @@
     "PasswordHash": "TXlQcm9qZWN07wWx17HeUw\u002BVhHGYEr2p80w9u5k1AKhSpqHdEHnueoc=",
     "Email": "agumavaanna11@gmail.com",
     "PhoneNumber": "599722956",
-    "UserRoles": 1
+    "StudentId": 0,
+    "UserRoles": "Admin"
+  },
+  {
+    "Id": 2,
+    "UserName": "Anna Agumava",
+    "PasswordHash": "TXlQcm9qZWN07jOIY8r\u002BHLNyfJrEBxqDwHaOsp\u002Bo6BhEhxfiLU0FPTg=",
+    "Email": "annaagumava111@gmail.com",
+    "PhoneNumber": "599999999",
+    "StudentId": 1,
+    "UserRoles": "Student"
+  },
+  {
+    "Id": 3,
+    "UserName": "AgumAAA",
+    "PasswordHash": "TXlQcm9qZWN08X33ZkR0Ty5cw\u002BEgzpzSkoF1QPRdZdRmgVufbtxIGnU=",
+    "Email": "annaaaaaA11@gmail.com",
+    "PhoneNumber": "567898989",
+    "StudentId": 0,
+    "UserRoles": "Admin"
   }
 ]

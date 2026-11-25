@@ -18,15 +18,22 @@ internal class AuthMenu
     /// Manages the current user's session.
     /// </summary>
     private readonly SessionService session;
+
+    /// <summary>
+    /// The list of students used for validating student registration.  
+    /// </summary>
+    private readonly List<Student> student;
     /// <summary>
     /// Initializes a new instance of the <see cref="AuthMenu"/> class.
     /// </summary>
     /// <param name="auth">The service used for authentication operations.</param>
     /// <param name="session">The service used to manage user sessions.</param>
-    public AuthMenu(AuthService auth, SessionService session)
+    /// <param name="students">The list of students used for validating student registration.</param>
+    public AuthMenu(AuthService auth, SessionService session, List<Student> students)
     {
         this.auth = auth;
         this.session = session;
+        this.student = students;
     }
     /// <summary>
     /// Displays the authentication menu and processes the user's selections.
@@ -122,10 +129,25 @@ internal class AuthMenu
             }
             Console.WriteLine("Invalid role. Please enter a valid role.");
         }
-
+        int studentId = 0;
+        if (role == Roles.Student)
+        {
+            while (true)
+            {
+                Console.WriteLine("Enter Student ID (must be a positive integer): ");
+                if (int.TryParse(Console.ReadLine(), out studentId) && studentId > 0)
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid input. Please enter a positive integer for Student ID.");
+                }
+            }
+        }
         try
         {
-            if (!await auth.RegisterAsync(username, password, email, role, phoneNumber))
+            if (!await auth.RegisterAsync(username, password, email, role, phoneNumber, studentId, student))
             {
                 Console.WriteLine("User already exists!");
                 return false;
@@ -146,6 +168,7 @@ internal class AuthMenu
         Console.WriteLine("Registered, but automatic login failed. Please log in manually.");
         return false;
     }
+
     /// <summary>
     /// Reads credentials and attempts to log in the user.
     /// </summary>
@@ -184,5 +207,9 @@ internal class AuthMenu
         Console.WriteLine("Login Successful!");
         Console.WriteLine($"Current User: {session.CurrentRole}");
         Console.WriteLine($"Phone Number: {session.CurrentPhonenmber}");
+        if(session.CurrentRole == Roles.Student)
+        {
+            Console.WriteLine($"Student ID: {session.CurrentStudentId}");
+        }
     }
 }

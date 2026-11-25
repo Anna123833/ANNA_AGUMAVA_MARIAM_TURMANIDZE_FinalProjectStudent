@@ -1,5 +1,8 @@
 ﻿using System.Globalization;
+using System.Text.RegularExpressions;
+using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Menus;
 using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Models;
+using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.User;
 
 namespace ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Helpers;
 
@@ -15,6 +18,7 @@ internal static class ConsoleHelper
         Console.Write(prompt);
         return Console.ReadLine() ?? "";
     }
+    
 
     /// <summary>
     /// This method repeatedly prompts the user for input until they provide a non-empty, non-whitespace string. It trims any leading or trailing whitespace from the input before returning it.
@@ -94,8 +98,14 @@ internal static class ConsoleHelper
     /// Prints the specified student's information to the console.
     /// </summary>
     /// <param name="student"></param>
-    public static void PrintStudent(Student student)
+    public static void PrintStudent(Student? student)
     {
+        if (student == null)
+        {
+            Console.WriteLine("Student not found.");
+            return;
+        }
+
         Console.WriteLine($"Name: {student.StudentName}");
         Console.WriteLine($"Id: {student.Id}");
         Console.WriteLine($"Roll Number: {student.RollNumber}");

@@ -1,9 +1,9 @@
 ﻿using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Models;
 using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.User;
-using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.AuthServices;
 /// <summary>
@@ -47,7 +47,18 @@ internal class AuthService
             password = value;
         }
     }
-    
+    private static bool IsAllowedToRegister(Roles role, string userName, int studentId ,List<Student> students)
+    {
+        switch (role)
+        {
+            case Roles.Student:
+                return students.Any(s => s != null && s?.Id == studentId && userName == s?.StudentName);
+        
+        default:
+             return true;    
+        }
+    }
+
     private string email = "";
     /// <summary>
     /// Gets or sets the email address after validating that it is not empty
@@ -79,6 +90,11 @@ internal class AuthService
     {
         return users.FirstOrDefault(u => u.Id == id);
     }
+
+    /// <summary>
+    /// It combines folderpath with filename to create the File Path
+    /// </summary>
+    /// <returns></returns>
     private static string GetFilePath()
     {
         string projectPath = Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName ?? string.Empty;
@@ -86,9 +102,10 @@ internal class AuthService
         Directory.CreateDirectory(folderPath);
         return Path.Combine(folderPath, fileName);
     }
-    private readonly JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions()
+    private static readonly JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions()
     {
         WriteIndented = true,
+        Converters = {new JsonStringEnumConverter()}
     };
     private AuthService(string filePath, List<Users> users)
     {
@@ -113,7 +130,7 @@ internal class AuthService
             return [];
         }
         string json = await File.ReadAllTextAsync(filePath);
-        List<Users> loaded = JsonSerializer.Deserialize<List<Users>>(json) ?? [];
+        List<Users> loaded = JsonSerializer.Deserialize<List<Users>>(json, jsonSerializerOptions) ?? [];
         int maxId = loaded.Count == 0 ? 0 : loaded.Max(u => u.Id);
         Users.SetNextId(maxId + 1);
         return loaded;
@@ -135,24 +152,30 @@ internal class AuthService
     /// <param name="email">The new user's email address.</param>
     /// <param name="roles">The role assigned to the new user.</param>
     /// <param name="phoneNumber">The new user's phone number.</param>
+    /// <param name="studentId">The ID of the student associated with the user.</param>
+    /// <param name="students">The list of students.</param>
     /// <returns>
     /// <see langword="true"/> if registration succeeds; otherwise,
     /// <see langword="false"/>.
     /// </returns>
-    public async Task<bool> RegisterAsync(string userName, string password, string email, Roles roles, string phoneNumber)
+    public async Task<bool> RegisterAsync(string userName, string password, string email, Roles roles, string phoneNumber, int studentId, List<Student> students)
     {
         Password = password;
         Email = email;
         Users? ExistingUser = users.FirstOrDefault(u => u.Email == email);
-        if (users.Any(e=>e.Email == Email))
+        if (users.Any(e=>e.Email == email))
         {
             return false;
         }
-        //if (ExistingUser is not null)
-        //{
-        //    return false;
-        //}
+        if (!IsAllowedToRegister(roles, userName, studentId, students))
+        {
+            throw new ArgumentException($"Cannot register user with role {roles} and username {userName} because the student ID {studentId} does not match any existing student.");
+        }
         Users newUser = new Users(userName, email, phoneNumber, roles, GetHashPasswords(password));
+        if(roles == Roles.Student)
+        {
+            newUser.StudentId = studentId;
+        }
         users.Add(newUser);
         await SaveUsersAsync();
         return true;

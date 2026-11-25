@@ -28,6 +28,10 @@ internal class Users : RegistratedUsersRoles
     /// </summary>
     public string PhoneNumber { get; set; } = string.Empty;
     /// <summary>
+    /// Gets or sets the user's Student ID.
+    /// </summary>
+    public int StudentId { get; set; }
+    /// <summary>
     /// Sets the value used for the next user's identifier.
     /// </summary>
     /// <param name="value"></param>
@@ -39,6 +43,7 @@ internal class Users : RegistratedUsersRoles
     /// Initializes a new, empty user.
     /// </summary>
     public Users() { }
+
     /// <summary>
     /// Initializes a new user with the specified details and role.
     /// </summary>
@@ -47,6 +52,7 @@ internal class Users : RegistratedUsersRoles
     /// <param name="phoneNumber"></param>
     /// <param name="roles"></param>
     /// <param name="PasswordHash"></param>
+
     public Users(string userName, string email, string phoneNumber, Roles roles ,string PasswordHash)
     {
         this.UserName = userName;

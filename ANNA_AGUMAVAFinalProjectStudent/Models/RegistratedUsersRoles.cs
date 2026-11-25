@@ -25,4 +25,5 @@ internal class RegistratedUsersRoles
     {
         UserRoles = new Roles();
     }
+    
 }

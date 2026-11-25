@@ -4,10 +4,7 @@ using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Menus;
 using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Models;
 using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Service;
 using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Session;
-/// <summary>
-/// Creates the application services and menus, restores any saved login,
-/// and routes the user to the menu associated with their role.
-/// </summary>
+
 
 /// <summary>
 /// Creates the student service and loads its data asynchronously.
@@ -24,7 +21,7 @@ var auth = await AuthService.CreateAsync();
 /// <summary>
 /// Creates a session service to track the current user's login and role.
 /// </summary>
-var session = new SessionService(auth);
+var session = new SessionService(auth, studentManagement);
 /// <summary>
 /// Creates the actions that menus can use to perform student-related tasks.
 /// </summary>
@@ -32,7 +29,7 @@ var actions = new StudentActions(studentManagement);
 /// <summary>
 /// Creates the menu used for logging in or registering.
 /// </summary>
-var authMenu = new AuthMenu(auth, session);
+var authMenu = new AuthMenu(auth, session, service.GetStudents());
 /// <summary>
 /// Creates the menu available to students.
 /// </summary>

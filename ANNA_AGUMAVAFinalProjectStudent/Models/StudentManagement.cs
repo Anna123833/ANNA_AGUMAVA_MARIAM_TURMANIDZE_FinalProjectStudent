@@ -1,4 +1,5 @@
 ﻿using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Service;
+using System.Text.RegularExpressions;
 
 namespace ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Models;
 /// <summary>
@@ -31,10 +32,11 @@ internal class StudentManagement
         int studentsInCourse = students.Count(s => s.Course == student.Course);
         student.RollNumber = $"R{(int)student.Course}_{studentsInCourse / 20 + 1}";
         students.Add(student);
-        if(service != null)
+        if (service != null)
         {
             await service.SaveDataAsync();
-        };
+        }
+        ;
     }
 
     /// <summary>Returns a read-only view of all students.</summary>
@@ -45,7 +47,7 @@ internal class StudentManagement
     /// <summary>Returns students ordered by increasing age.</summary>
     public List<Student> GetStudentsByIncreasingAge()
     {
-        var sortedstudentsByIncreasingAge = students.OrderBy(s=>s.Age).ToList();
+        var sortedstudentsByIncreasingAge = students.OrderBy(s => s.Age).ToList();
         return sortedstudentsByIncreasingAge;
     }
     /// <summary>Returns students ordered by decreasing age.</summary>
@@ -73,7 +75,7 @@ internal class StudentManagement
 
         for (var i = 0; i < beststudents.Count; i++)
         {
-            Console.WriteLine($"{i+1}. {beststudents[i]} ");
+            Console.WriteLine($"{i + 1}. {beststudents[i]} ");
         }
         return beststudents;
     }
@@ -89,50 +91,65 @@ internal class StudentManagement
             return false;
         }
         student.Grade = newGrade;
-        if(service != null)
+        if (service != null)
         {
             await service.SaveDataAsync();
         }
         return true;
     }
-    /// <summary>Returns the first student with the specified grade.</summary>
-    public Student? GetStudentByGrade(char grade)
+    /// <summary>Returns all students with the specified grade.</summary>
+    public List<Student?> GetStudentsByGrade(char grade)
     {
-        Student? result = null;
+        var result = new List<Student?>();
         foreach (Student item in students)
         {
             if (item.Grade == grade)
             {
-                result = item;
-                break;
+                result.Add(item);
             }
         }
         return result;
     }
-    /// <summary>Returns the first student with the specified name.</summary>
-    public Student? GetStudentByName(string studentName)
+    /// <summary>Returns all students with the specified name.</summary>
+    public List<Student?> GetStudentsByName(string studentName)
     {
-        Student? result = null;
+        var result = new List<Student?>();
         foreach (Student item in students)
         {
             if (item.StudentName == studentName)
             {
-                result = item;
-                break;
+                result.Add(item);
             }
         }
         return result;
     }
-    /// <summary>Returns the first student from the specified school.</summary>
-    public Student? GetStudentBySchoolName(string schoolName)
+    /// <summary>Returns all students from the specified school.</summary>
+    public List<Student?> GetStudentsBySchoolName(string schoolName)
     {
-        Student? result = null;
+        var result = new List<Student?>();
         foreach (Student item in students)
         {
             if (item.SchoolName == schoolName)
             {
-                result = item;
-                break;
+                result.Add(item);
+            }
+        }
+        return result;
+    }
+    /// <summary>
+    /// This method prompts the user for input and trims it to try to read the entered RollNumber. If the input is not a valid, it displays an error message and prompts the user again until a valid integer is entered
+    /// </summary>
+    /// <param name="prompt"></param>
+    /// <returns></returns>
+    public List<Student?> GetStudentsByRollNumber(string rollNumber)
+    {
+
+        var result = new List<Student?>();
+        foreach (Student item in students)
+        {
+            if(item.RollNumber == rollNumber)
+            {
+                result.Add(item);
             }
         }
         return result;
@@ -151,17 +168,16 @@ internal class StudentManagement
         }
         return result;
     }
-    /// <summary>Returns the first student with the specified birth date.</summary>
+    /// <summary>Returns all students with the specified birth date.</summary>
 
-    public Student? GetStudentByBirthDate(DateOnly birthdateDate)
+    public List<Student?> GetStudentsByBirthDate(DateOnly birthdateDate)
     {
-        Student? result = null;
+        var result = new List<Student?>();
         foreach (Student item in students)
         {
             if (item.BirthDate == birthdateDate)
             {
-                result = item;
-                break;
+                result.Add(item);
             }
         }
         return result;
@@ -207,14 +223,14 @@ internal class StudentManagement
     public LearningCourse ReadCourse()
     {
         LearningCourse[] courses = Enum.GetValues<LearningCourse>();
-        for(int i = 0; i < courses.Length; i++)
+        for (int i = 0; i < courses.Length; i++)
         {
             Console.WriteLine($"{i + 1}.{courses[i]}");
         }
         Console.WriteLine("Select Course: 1 ICTLiteracy,  2 BasicsOfProgramming,  3 ObjectOrientedProgramming,  4 ComputerArchitectureAndOrganization,  5 DataStructures,  6 Database,  7 DataAnalysisAndStatistics,  8 OperatingSystems,  9 ModelingAndSimulation,  10 Algorithms,  11 SoftwareEngineering,  12 MathematicalProgramming,  13 NetworkTechnologiesAndCommunications,  14 WebProgramming,  15 FunctionalProgramming,  16 OperationsResearch,  17 ProjectPreparation,  18 ArtificialIntelligence,  19 ComputerLawAndEthics,  20 TeamProjects ");
         Console.WriteLine("Select Course: ");
         int choice;
-        while(!int.TryParse(Console.ReadLine(), out choice) || choice<1 || choice>courses.Length)
+        while (!int.TryParse(Console.ReadLine(), out choice) || choice < 1 || choice > courses.Length)
         {
             Console.WriteLine($"Wrong Choice, select a number again from 1 to {courses.Length}");
         }
