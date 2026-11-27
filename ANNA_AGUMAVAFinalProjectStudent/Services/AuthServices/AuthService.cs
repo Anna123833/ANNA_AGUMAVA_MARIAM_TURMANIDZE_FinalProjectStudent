@@ -1,11 +1,11 @@
 ﻿using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Models;
-using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.User;
+using ANNA_AGUMAVAFinalProjectStudent.Models;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.AuthServices;
+namespace ANNA_AGUMAVAFinalProjectStudent.Services.AuthServices;
 /// <summary>
 /// Provides authentication functionality, including user registration,
 /// credential lookup, password hashing, and user-data persistence.

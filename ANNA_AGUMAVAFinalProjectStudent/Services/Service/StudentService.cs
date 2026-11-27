@@ -1,7 +1,7 @@
 ﻿using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Models;
 using System.Text.Json;
 
-namespace ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Service;
+namespace ANNA_AGUMAVAFinalProjectStudent.Services.Service;
 /// <summary>
 /// Loads, stores, and persists student data.
 /// </summary>

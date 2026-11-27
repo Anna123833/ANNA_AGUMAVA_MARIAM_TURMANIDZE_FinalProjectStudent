@@ -1,7 +1,7 @@
-﻿using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Service;
+﻿using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Models;
 using System.Text.RegularExpressions;
 
-namespace ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Models;
+namespace ANNA_AGUMAVAFinalProjectStudent.Services.Service;
 /// <summary>
 /// Manages student records, including searching, sorting, and persistence.
 /// </summary>

@@ -1,6 +1,7 @@
-﻿using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.AuthServices;
-using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Models;
-using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.User;
+﻿using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Models;
+using ANNA_AGUMAVAFinalProjectStudent.Models;
+using ANNA_AGUMAVAFinalProjectStudent.Services.AuthServices;
+using ANNA_AGUMAVAFinalProjectStudent.Services.Service;
 namespace ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Session;
 /// <summary>
 /// Manages the current user's login session.

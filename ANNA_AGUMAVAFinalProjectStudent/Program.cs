@@ -1,9 +1,9 @@
-﻿using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.AuthServices;
-using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Helpers;
+﻿using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Helpers;
 using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Menus;
 using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Models;
-using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Service;
 using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Session;
+using ANNA_AGUMAVAFinalProjectStudent.Services.AuthServices;
+using ANNA_AGUMAVAFinalProjectStudent.Services.Service;
 
 
 /// <summary>

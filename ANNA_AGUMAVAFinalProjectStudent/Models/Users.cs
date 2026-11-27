@@ -1,6 +1,6 @@
 ﻿using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Models;
 
-namespace ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.User;
+namespace ANNA_AGUMAVAFinalProjectStudent.Models;
 /// <summary>
 /// Represents a registered user and their account details.
 /// </summary>
