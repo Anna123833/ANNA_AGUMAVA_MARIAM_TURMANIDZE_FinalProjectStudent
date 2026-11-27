@@ -43,6 +43,23 @@ var guestMenu = new GuestMenu(session, actions);
 /// </summary>
 var adminMenu = new AdminMenu(session, actions);
 
+/// <summary>
+/// Displays an asynchronous loading animation in the console.
+/// </summary>
+/// <returns>A task representing the asynchronous loading operation.</returns>
+static async Task LoadingAsync()
+    {
+        char[] spinner = { '|', '/', '-', '\\' };
+        Console.Write("Loading ");
+        for (int i = 0; i < 12; i++)
+        {
+            Console.Write(spinner[i % spinner.Length]);
+            await Task.Delay(150);
+            Console.Write('\b');
+        }
+        Console.WriteLine("Done!");
+    }
+
 Console.WriteLine("---------- TSU Student Management ----------");
 // Restore a previous login, if one exists.
 if (session.RestoreLogin())
@@ -53,6 +70,7 @@ if (session.RestoreLogin())
 bool exited = false;
 while (!exited)
 {
+    await LoadingAsync();
     if (!session.IsLoggedIn)
     {
         exited = await authMenu.RunAsync();

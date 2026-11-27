@@ -15,6 +15,8 @@ internal class StudentService : IStudentService
     {
         WriteIndented = true,
     };
+
+
     /// <summary>
     /// Initializes the service with a file path and student list.
     /// </summary>
@@ -25,16 +27,25 @@ internal class StudentService : IStudentService
         this.filePath = filePath;
         this.students = students;
     }
+
+
     /// <summary>
     /// Creates a service and loads students from the default data file.
     /// </summary>
+    /// 
+
     public static async Task<StudentService> CreateAsync()
     {
         string filePath = GetFilePath();
         StudentService service = new StudentService(filePath, []);
+        List<Student> loadedStudents = await service.LoadStudents();
         service.students.AddRange(await service.GetStudentsFromFileAsync());
+        int maxId = loadedStudents.Count == 0 ? 0 : loadedStudents.Max(s => s.Id);
+        Student.SetNextId(maxId + 1);
         return service;
     }
+
+
     /// <summary>
     /// Gets the student list managed by this service.
     /// </summary>
@@ -42,6 +53,34 @@ internal class StudentService : IStudentService
     {
         return students;
     }
+
+
+    public async Task<List<Student>> LoadStudents()
+    {
+        try
+        {
+            if (!File.Exists(filePath))
+            {
+                return new List<Student>();
+            }
+            string json = await File.ReadAllTextAsync(filePath);
+            return JsonSerializer.Deserialize<List<Student>>(json) ?? new List<Student>();
+        }
+        catch(JsonException ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        catch (IOException ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        return new List<Student>();
+    }
+
     /// <summary>
     /// Builds the path to the student data file and creates its directory if needed.
     /// </summary>

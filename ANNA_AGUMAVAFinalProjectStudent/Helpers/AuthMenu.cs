@@ -1,6 +1,7 @@
 ﻿using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Helpers;
 using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Models;
 using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Session;
+using ANNA_AGUMAVAFinalProjectStudent.Models;
 using ANNA_AGUMAVAFinalProjectStudent.Services.AuthServices;
 
 namespace ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Menus;
@@ -117,7 +118,17 @@ internal class AuthMenu
             return false;
         }
 
-        string phoneNumber = ConsoleHelper.ReadRequired("Phone Number: ");
+        string phoneNumber;
+        while (true)
+        {
+            Console.Write("Phone Number");
+            phoneNumber = Console.ReadLine() ?? "";
+            if(!string.IsNullOrWhiteSpace(phoneNumber) && phoneNumber.All(char.IsDigit))
+            {
+                break;
+            }
+            Console.WriteLine("Invalid Phone number. eENter digits only!");
+        }
 
         Roles role;
         while (true)

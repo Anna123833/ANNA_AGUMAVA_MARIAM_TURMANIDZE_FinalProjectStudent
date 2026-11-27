@@ -31,4 +31,11 @@ internal interface IStudentService
     /// <param name="course">The student's course.</param>
     /// <returns>A task that represents the asynchronous add operation.</returns>
     Task AddNewStudentAsync(string studentName, string schoolName, char grade, DateOnly birthDate, LearningCourse course);
+
+
+    /// <summary>
+    /// Loads students asynchronously from the JSON file.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation, containing a list of students.</returns>
+    Task<List<Student>> LoadStudents();
 }

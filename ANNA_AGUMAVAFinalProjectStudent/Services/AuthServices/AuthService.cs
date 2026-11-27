@@ -15,7 +15,11 @@ internal class AuthService
 
     private List<Users> users = new List<Users>();
     private const string fileName = "users.json";
-    private string password = "";    
+
+    /// <summary>
+    /// Gets or sets the password after validating its required length and character types.
+    /// </summary>
+    private string password = "";
     /// <summary>
     /// Gets or sets the password after validating its required length and character types.
     /// </summary>
@@ -23,7 +27,7 @@ internal class AuthService
     {
         get => password;
         set
-        {            
+        {
             if (string.IsNullOrWhiteSpace(value))
             {
                 throw new ArgumentException("Pasword can not be null or Whitespace, it is required!", nameof(value));
@@ -40,46 +44,25 @@ internal class AuthService
             {
                 throw new ArgumentException("Pasword must contain at least one Lowercase letter", nameof(value));
             }
-            if(!value.Any(char.IsSymbol) && !value.Any(char.IsPunctuation))
+            if (!value.Any(char.IsSymbol) && !value.Any(char.IsPunctuation))
             {
                 throw new ArgumentException("Pasword must contain at least one Symbol", nameof(value));
             }
             password = value;
         }
     }
-    private static bool IsAllowedToRegister(Roles role, string userName, int studentId ,List<Student> students)
+    private static bool IsAllowedToRegister(Roles role, string userName, int studentId, List<Student> students)
     {
         switch (role)
         {
             case Roles.Student:
                 return students.Any(s => s != null && s?.Id == studentId && userName == s?.StudentName);
-        
-        default:
-             return true;    
+
+            default:
+                return true;
         }
     }
 
-    private string email = "";
-    /// <summary>
-    /// Gets or sets the email address after validating that it is not empty
-    /// and contains basic email-format characters.
-    /// </summary>
-    public string Email
-    {
-        get => email;
-        set
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                throw new ArgumentException("Email cannot be empty or contain only whitespace, it is required!", nameof(value));
-            }
-            if(!value.Contains("@") || !value.Contains("."))
-            {
-                throw new ArgumentException("Email must be in a valid format.", nameof(value));
-            }
-            email = value;
-        }
-    }
     private readonly string filePath;
     /// <summary>
     /// Finds a user by their unique ID.
@@ -105,7 +88,7 @@ internal class AuthService
     private static readonly JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions()
     {
         WriteIndented = true,
-        Converters = {new JsonStringEnumConverter()}
+        Converters = { new JsonStringEnumConverter() }
     };
     private AuthService(string filePath, List<Users> users)
     {
@@ -129,11 +112,29 @@ internal class AuthService
         {
             return [];
         }
-        string json = await File.ReadAllTextAsync(filePath);
-        List<Users> loaded = JsonSerializer.Deserialize<List<Users>>(json, jsonSerializerOptions) ?? [];
-        int maxId = loaded.Count == 0 ? 0 : loaded.Max(u => u.Id);
-        Users.SetNextId(maxId + 1);
-        return loaded;
+        try
+        {
+            string json = await File.ReadAllTextAsync(filePath);
+            List<Users> loaded = JsonSerializer.Deserialize<List<Users>>(json, jsonSerializerOptions) ?? [];
+            int maxId = loaded.Count == 0 ? 0 : loaded.Max(u => u.Id);
+            Users.SetNextId(maxId + 1);
+            return loaded;
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine(ex.Message);
+            return [];
+        }
+        catch (ArgumentException ex)
+        {
+            Console.WriteLine(ex.Message);
+            return [];
+        }
+        catch (IOException ex)
+        {
+            Console.WriteLine(ex.Message);
+            return [];
+        }
     }
     private async Task SaveUsersAsync()
     {
@@ -144,6 +145,9 @@ internal class AuthService
     {
         return HashPassword(password, fixedSalt);
     }
+
+
+
     /// <summary>
     /// Registers a new user if the email address is not already in use.
     /// </summary>
@@ -161,9 +165,8 @@ internal class AuthService
     public async Task<bool> RegisterAsync(string userName, string password, string email, Roles roles, string phoneNumber, int studentId, List<Student> students)
     {
         Password = password;
-        Email = email;
         Users? ExistingUser = users.FirstOrDefault(u => u.Email == email);
-        if (users.Any(e=>e.Email == email))
+        if (users.Any(e => e.Email == email))
         {
             return false;
         }
@@ -172,7 +175,7 @@ internal class AuthService
             throw new ArgumentException($"Cannot register user with role {roles} and username {userName} because the student ID {studentId} does not match any existing student.");
         }
         Users newUser = new Users(userName, email, phoneNumber, roles, GetHashPasswords(password));
-        if(roles == Roles.Student)
+        if (roles == Roles.Student)
         {
             newUser.StudentId = studentId;
         }
@@ -180,6 +183,8 @@ internal class AuthService
         await SaveUsersAsync();
         return true;
     }
+
+
     /// <summary>
     /// Deletes a registered user when the supplied credentials match.
     /// </summary>

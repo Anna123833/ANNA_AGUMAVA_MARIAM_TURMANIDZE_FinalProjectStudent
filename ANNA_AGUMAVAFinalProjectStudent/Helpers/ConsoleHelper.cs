@@ -15,7 +15,7 @@ internal static class ConsoleHelper
         Console.Write(prompt);
         return Console.ReadLine() ?? "";
     }
-    
+
 
     /// <summary>
     /// This method repeatedly prompts the user for input until they provide a non-empty, non-whitespace string. It trims any leading or trailing whitespace from the input before returning it.
@@ -103,13 +103,21 @@ internal static class ConsoleHelper
             return;
         }
 
-        Console.WriteLine($"Name: {student.StudentName}");
-        Console.WriteLine($"Id: {student.Id}");
-        Console.WriteLine($"Roll Number: {student.RollNumber}");
-        Console.WriteLine($"Grade: {student.Grade}");
-        Console.WriteLine($"School Name: {student.SchoolName}");
-        Console.WriteLine($"Birth Date: {student.BirthDate}");
-        Console.WriteLine($"Course: {student.Course}");
-        Console.WriteLine();
+        try
+        {
+            Console.WriteLine($"Name: {student.StudentName}");
+            Console.WriteLine($"Id: {student.Id}");
+            Console.WriteLine($"Roll Number: {student.RollNumber}");
+            Console.WriteLine($"Grade: {student.Grade}");
+            Console.WriteLine($"School Name: {student.SchoolName}");
+            Console.WriteLine($"Birth Date: {student.BirthDate}");
+            Console.WriteLine($"Course: {student.Course}");
+            Console.WriteLine();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
     }
+
 }

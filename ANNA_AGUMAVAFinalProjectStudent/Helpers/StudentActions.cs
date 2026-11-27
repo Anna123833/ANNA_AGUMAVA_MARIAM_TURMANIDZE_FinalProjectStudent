@@ -184,9 +184,16 @@ internal class StudentActions
             }
         }
         student.Course = studentManagement.ReadCourse();
-        await studentManagement.AddStudentAsync(student);
-        Console.WriteLine($"'{student.StudentName}' was added to the List of Students");
-        ConsoleHelper.Pause();
+        try
+        {
+            await studentManagement.AddStudentAsync(student);
+            Console.WriteLine($"'{student.StudentName}' was added to the List of Students");
+            ConsoleHelper.Pause();
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
     }
     /// <summary>
     /// Prompts for a student ID and updates that student's grade.
