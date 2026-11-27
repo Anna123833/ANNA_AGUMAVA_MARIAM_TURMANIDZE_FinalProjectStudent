@@ -29,7 +29,7 @@ internal enum LearningCourse
 /// <summary>
 /// Describes the properties and information required of a student.
 /// </summary>
-internal class Students
+internal abstract class Students
 {
     private string studentName = string.Empty;
     private int id;

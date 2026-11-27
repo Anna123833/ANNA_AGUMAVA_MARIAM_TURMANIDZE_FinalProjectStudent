@@ -1,11 +1,12 @@
 ﻿using ANNA_AGUMAVA_MARIAM_TURMANIDZE_FinalProjectStudent.Models;
+using ANNA_AGUMAVAFinalProjectStudent.Interfaces;
 using System.Text.Json;
 
 namespace ANNA_AGUMAVAFinalProjectStudent.Services.Service;
 /// <summary>
 /// Loads, stores, and persists student data.
 /// </summary>
-internal class StudentService
+internal class StudentService : IStudentService
 {
     private readonly List<Student> students;
     private const string fileName = "students.json";

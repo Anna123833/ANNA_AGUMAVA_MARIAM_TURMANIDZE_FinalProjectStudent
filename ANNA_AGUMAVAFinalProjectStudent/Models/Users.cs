@@ -11,26 +11,7 @@ internal class Users : RegistratedUsersRoles
     /// Gets or sets the user's unique identifier.
     /// </summary>
     public int Id { get; set; } = id++;
-    /// <summary>
-    /// Gets or sets the user's name.
-    /// </summary>
-    public string UserName { get; set; } = string.Empty;
-    /// <summary>
-    /// Gets or sets the user's password hash.
-    /// </summary>
-    public string PasswordHash { get; set; } = string.Empty;
-    /// <summary>
-    /// Gets or sets the user's email address.
-    /// </summary>
-    public string Email { get; set; } = string.Empty;
-    /// <summary>
-    /// Gets or sets the user's phone number.
-    /// </summary>
-    public string PhoneNumber { get; set; } = string.Empty;
-    /// <summary>
-    /// Gets or sets the user's Student ID.
-    /// </summary>
-    public int StudentId { get; set; }
+
     /// <summary>
     /// Sets the value used for the next user's identifier.
     /// </summary>
@@ -53,7 +34,7 @@ internal class Users : RegistratedUsersRoles
     /// <param name="roles"></param>
     /// <param name="PasswordHash"></param>
 
-    public Users(string userName, string email, string phoneNumber, Roles roles ,string PasswordHash)
+    public Users(string userName, string email, string phoneNumber, Roles roles, string PasswordHash) : base(userName, email, phoneNumber, roles, PasswordHash)
     {
         this.UserName = userName;
         this.PasswordHash = PasswordHash;
